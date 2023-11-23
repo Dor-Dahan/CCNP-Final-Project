@@ -1,0 +1,72 @@
+hostname HQ-SW-ACCESS2
+no ip domain-lookup
+banner motd # Unauthorized access to this device is prohibited! #
+ip domain-name HQ.com
+crypto key generate rsa general-keys modulus 1024
+line console 0
+username admin password admin
+ip ssh version 2
+line vty 0 4
+login local
+transport input ssh
+logging sync
+exec-timeout 5
+access-class VTY-LINES in 
+enable secret ITQ#1
+service password-encryption
+ip access-list standard VTY-LINES
+permit 1.1.1.32 0.0.0.31 
+permit 6.6.6.32 0.0.0.31 
+permit 7.7.7.32 0.0.0.31 
+deny any
+exit
+
+vlan 99
+name BLOCKED-PORTS
+exit
+vlan 10
+name main-network
+exit
+vlan 11
+name IT-network
+exit
+interface vlan 11
+ip address 1.1.1.38 255.255.255.224
+no shutdown
+exit
+ip default-gateway 1.1.1.10
+spanning-tree mode rapid-pvst
+spanning-tree vlan 10,11
+
+interface e0/0
+description IT-network-pc
+switchport mode access
+switchport access vlan 11
+spanning-tree bpduguard enable
+spanning-tree portfast
+switch port-security
+switch port-security maximum 1
+switch port-security mac-address sticky
+switch port-security violation restrict 
+exit
+
+interface range e0/1-2
+description etherchannel to HQ-SW-DISTRIBUTION1
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-protocol lacp
+channel-group 2 mode active
+exit
+
+interface range e1/2-3
+description etherchannel to HQ-SW-DISTRIBUTION2
+switchport trunk encapsulation dot1q
+switchport mode trunk
+channel-protocol lacp
+channel-group 5 mode active
+exit
+
+interface range e0/3 , e2/0-3 , e3/0-3
+switchport access vlan 99
+shutdown
+exit

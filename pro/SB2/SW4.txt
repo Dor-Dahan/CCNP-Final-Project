@@ -1,0 +1,56 @@
+hostname SB2-SW1
+no ip domain-lookup
+banner motd # Unauthorized access to this device is prohibited! #
+ip domain-name SB2.com
+crypto key generate rsa general-keys modulus 1024
+line console 0
+username admin password admin
+ip ssh version 2
+line vty 0 4
+login local
+transport input ssh
+logging sync
+exec-timeout 5
+access-class VTY-LINES in 
+enable secret ITQ#1
+service password-encryption
+ip access-list standard VTY-LINES
+permit 1.1.1.32 0.0.0.31 
+permit 6.6.6.32 0.0.0.31 
+permit 7.7.7.32 0.0.0.31 
+deny any
+exit
+ip default-gateway 7.7.7.1
+
+
+vlan 99
+name BLOCKED-PORTS
+exit
+vlan 30
+name main-network
+exit
+vlan 31
+name IT-network
+exit
+interface vlan 31
+ip address 7.7.7.34 255.255.255.224
+no shutdown
+
+interface e0/0
+switchport trunk encapsulation dot1q
+switchport mode trunk
+interface e0/1 
+switchport mode access
+switchport access vlan 30
+spanning-tree bpduguard enable
+spanning-tree portfast
+switch port-security
+switch port-security maximum 1
+switch port-security mac-address sticky
+switch port-security violation restrict
+exit
+interface range e0/2-3 , e1/0-3 , e2/0-3 , e3/0-3
+switchport access vlan 99
+shutdown
+exit
+

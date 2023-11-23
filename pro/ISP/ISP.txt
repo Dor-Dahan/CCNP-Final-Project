@@ -1,0 +1,27 @@
+
+hostname ISP
+ip routing
+interface et0/0
+description ISP to R1
+no switchport
+ip address 2.2.2.2 255.255.255.252
+no shutdown
+exit
+interface e0/1
+description ISP to R2
+no switchport
+ip address 3.3.3.2 255.255.255.252
+no shutdown
+exit
+interface et0/2
+description ISP to R4
+no switchport
+ip address 5.5.5.2 255.255.255.252
+no shutdown
+exit
+interface e0/3
+description ISP to R3
+no switchport
+ip address 4.4.4.2 255.255.255.252
+no shutdown
+exit
